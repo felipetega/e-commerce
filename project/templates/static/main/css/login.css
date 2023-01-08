@@ -1,0 +1,30 @@
+/*HEADER*/
+
+.progress{
+  margin: 0 20px;
+  width: 100%;
+}
+/*CARDS*/
+
+.card-group{
+  margin: 20px 0;
+}
+
+.card img{
+  height: 30vw;
+}
+
+.carousel-item img{
+  height: 20vw;
+}
+
+@supports (display: flex) {
+  @media screen and (max-width: 600px) {
+    .card img{
+      height: 60vh;
+    }
+    .carousel-item img{
+      height: 20vh;
+    }
+  }
+}

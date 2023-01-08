@@ -1,0 +1,55 @@
+{% extends 'base.html' %} {% load static %} {% block head %}
+
+<link href="{% static 'main/css/home.css' %}" rel="stylesheet" />
+{% endblock head %} {% block body %}
+
+
+{% comment %} FILTROS {% endcomment %}
+<form action="{% url 'home' %}" method="GET">{% csrf_token %}
+  <div class="row">
+                      
+    <div class="col-md-5">
+        <input type="text" placeholder="Busque pelo nome" class="form-control" name="filtro_nome">
+    </div>
+
+    <div class="col-md-4">
+        <select class="form-select" name="filtro_selecionado">
+          {% for name, value in filtros.items %}
+                <option value="{{value}}">{{name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+
+  <div class="col-md-3">
+    <input type="submit" value="FILTRAR" class="btn btn-lg btn-orange">
+  </div>
+  </div>
+</form>
+{% comment %} FILTROS {% endcomment %}
+
+
+<!--CARD-->
+<section class="text-center mb-4">
+  <div class="row wow fadeIn">
+    {% for produto in produtos %}
+    <div class="col-lg-3 col-md-6 mb-4">
+      <div class="card">
+        <div class="view overlay">
+          <img src="{{produto.product_img.url}}" class="card-img-top">
+          <h5>{{ produto.product_name }}</h5>
+          <p>R$ {{ produto.product_price }}</p>
+          <p>SCORE: {{ produto.product_score }}</p>
+          <button onclick="location.href = '{% url 'create_cartitem' produto.product_id %}'" type="button" class="btn btn-outline-dark">Adiconar ao carrinho</button>
+          <button onclick="openCart()" type="button" class="btn btn-outline-dark">Ir para o carrinho</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+<!--CARD-->
+
+
+<!--SCRIPTS-->
+{% endblock body %}

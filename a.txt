@@ -1,0 +1,13 @@
+python -m venv venv
+
+venv\Scripts\activate.bat
+
+django-admin startproject core .
+
+python manage.py startapp inventory
+
+INSTALLED_APPS = ['inventory',]
+
+pip install -r requirements.txt
+
+pip install psycopg2
