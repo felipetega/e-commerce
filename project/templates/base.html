@@ -67,7 +67,7 @@
                   {% comment %} CART ITENS END {% endcomment %}
 
                   {% for total in cart %}
-                  <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">Total: R${{total.total_price}}</h5>
+                  <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">Frete: R${{total.fee}} Subtotal: R${{total.subtotal}} Total: R${{total.total_price}}</h5>
                   {% endfor %}
 
                   <button type="submit" class="btn btn-light btn-lg btn-block">Finalizar compra</button>

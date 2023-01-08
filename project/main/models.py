@@ -5,6 +5,8 @@ from django.conf import settings
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete, post_delete
+from django.db.models import Sum
+
 
 
 class Product(models.Model):
@@ -24,14 +26,12 @@ User = settings.AUTH_USER_MODEL
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE) 
     ordered = models.BooleanField(default=False)
-    fee = models.DecimalField(max_digits=9, decimal_places=2, default=0)
     total_price = models.FloatField(default=0)
-
-    #def __str__(self):
-        #return str(self.user.username) + " " + str(self.total_price)
+    fee = models.FloatField(default=0)
+    subtotal = models.FloatField(default=0)
 
     def __str__(self):
-        return f"{str(self.user)}'s cart"
+        return str(self.total_price)
 
 
 
@@ -51,6 +51,86 @@ class CartItems(models.Model):
         return f"{str(self.product)} | Quantidade: {str(self.quantity)} | Subtotal: R${str(self.price)}"
 
 
+@receiver(post_save, sender=CartItems)
+def update_cart_fee_and_subtotal(sender, instance, **kwargs):
+    # Get the Cart object associated with the CartItems object
+    cart = instance.cart
+    # Calculate the total value of all CartItems in the Cart
+    subtotal = 0
+    for item in cart.cartitems_set.all():
+        subtotal += item.product.product_price * item.quantity
+    # Update the subtotal field of the Cart object
+    cart.subtotal = subtotal
+    # Calculate the new fee based on the subtotal of the Cart
+    if subtotal >= 250:
+        fee = 0
+    else:
+        fee = 10 * cart.cartitems_set.aggregate(Sum('quantity'))['quantity__sum']
+    # Update the fee field of the Cart object
+    cart.fee = fee
+    # Calculate the total price of the Cart
+    total_price = subtotal + fee
+    # Update the total_price field of the Cart object
+    cart.total_price = total_price
+    # Save the changes to the Cart object
+    cart.save()
+
+
+from django.db.models import Count
+
+@receiver(post_delete, sender=CartItems)
+def update_fee_and_subtotal_on_delete(sender, instance, **kwargs):
+    # Recupera o item que está sendo removido e o carrinho ao qual ele pertence
+    cart_item = instance
+    cart = Cart.objects.get(id=cart_item.cart.id)
+
+    # Calcula o novo valor de subtotal com base nos itens restantes no carrinho
+    subtotal = 0
+    for item in CartItems.objects.filter(cart=cart):
+        subtotal += item.product.product_price * item.quantity
+
+    # Atualiza o valor de subtotal do carrinho
+    cart.subtotal = subtotal
+
+    # Calcula o novo valor de fee com base na quantidade de itens restantes no carrinho
+    fee = 10 * CartItems.objects.filter(cart=cart).aggregate(Count('quantity'))['quantity__count']
+    # Atualiza o valor de fee do carrinho
+    cart.fee = fee
+
+    # Calcula o novo valor de total_price com base no subtotal e fee atualizados
+    total_price = subtotal + fee
+    # Atualiza o valor de total_price do carrinho
+    cart.total_price = total_price
+
+    # Salva as alterações no carrinho
+    cart.save()
+
+
+
+'''
+#FEE SUBTOTAL
+@receiver(post_save, sender=CartItems)
+def update_cart_fee_and_subtotal(sender, instance, **kwargs):
+    # Get the Cart object associated with the CartItems object
+    cart = instance.cart
+    # Calculate the new fee based on the number of CartItems and their quantities in the Cart
+    fee = 10 * cart.cartitems_set.aggregate(Sum('quantity'))['quantity__sum']
+    # Calculate the total value of all CartItems in the Cart
+    subtotal = 0
+    for item in cart.cartitems_set.all():
+        subtotal += item.product.product_price * item.quantity
+    # Update the fee and subtotal fields of the Cart object
+    cart.fee = fee
+    cart.subtotal = subtotal
+    # Calculate the total price of the Cart
+    total_price = subtotal + fee
+    # Update the total_price field of the Cart object
+    cart.total_price = total_price
+    # Save the changes to the Cart object
+    cart.save()
+
+'''
+'''
 @receiver(pre_save, sender=CartItems)
 def correct_price(sender, **kwargs):
     cart_items = kwargs['instance']
@@ -103,3 +183,4 @@ def update_total_price_on_delete(sender, instance, **kwargs):
     # Atualiza o valor de total_price do carrinho
     cart.total_price = round(total_price, 2)
     cart.save()
+'''
