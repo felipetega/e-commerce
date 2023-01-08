@@ -24,13 +24,14 @@ User = settings.AUTH_USER_MODEL
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE) 
     ordered = models.BooleanField(default=False)
+    fee = models.DecimalField(max_digits=9, decimal_places=2, default=0)
     total_price = models.FloatField(default=0)
 
     #def __str__(self):
         #return str(self.user.username) + " " + str(self.total_price)
 
     def __str__(self):
-        return str(self.total_price)
+        return f"{str(self.user)}'s cart"
 
 
 
