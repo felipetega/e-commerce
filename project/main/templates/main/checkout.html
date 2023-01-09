@@ -1,0 +1,82 @@
+{% extends 'base.html' %} {% load static %} {% block head %}
+
+<link href="{% static 'main/css/home.css' %}" rel="stylesheet" />
+{% endblock head %} {% block body %}
+
+
+    <div class="d-flex justify-content-center">
+      <div style="width: 50vw;">
+          <form action="{% url 'checkout' %}" method="POST"> {% csrf_token %}
+      
+            <table class="table align-middle mb-0 bg-white">
+              <thead class="bg-light">
+                <tr>
+                  <th></th>
+                  <th>Nome</th>
+                  <th>Quantidade</th>
+                  <th>Subtotal</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in cartItems %}
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <img
+                          src="{{item.product.product_img.url}}"
+                          alt=""
+                          style="width: 45px; height: 45px"
+                          class="rounded-circle"
+                          />
+                    </div>
+                  </td>
+                  <td>
+                    <p class="fw-bold mb-1">{{item.product}}</p>
+                  </td>
+                  <td>
+                    <p class="fw-bold mb-1">{{item.quantity}}</p>
+                  </td>
+                  <td>
+                    <p class="fw-bold mb-1">{{item.price}}</p>
+                  </td>
+                  <td>
+                    <div class="d-flex">
+                      <div class="mx-1" onclick="location.href = '{% url 'addition' item.product.product_id %}'">
+                        <img src="{% static 'base/img/add.png' %}" height="30px" width="30px">
+                      </div>
+                    
+                      <div class="mx-1" onclick="location.href = '{% url 'subtract' item.product.product_id %}'">
+                        <img src="{% static 'base/img/minus.png' %}" height="30px" width="30px">
+                      </div>
+                    
+                      <div class="mx-1" onclick="location.href = '{% url 'remove' item.product.product_id %}'">
+                        <img src="{% static 'base/img/delete1.png' %}" height="30px" width="30px">
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            
+            {% for total in cart %}
+            <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">Frete: R${{total.fee}} Subtotal: R${{total.subtotal}} Total: R${{total.total_price}}</h5>
+            {% endfor %}
+
+            <label for="address" class="form-label">Endereço</label>
+            <input class="form-control form-control-lg" type="text" placeholder="Endereço" aria-label=".form-control-lg example" id="address">
+            <div class="mb-3">
+      
+              <label for="payment_method" class="form-label">Forma de pagamento</label>
+              <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" id="payment_method">
+                {% for name, value in formas_pagamento.items %}
+                <option value="{{value}}">{{name}}</option>
+            {% endfor %}
+              </select>
+            <div class="hstack gap-3">
+              <button value="login" type="submit" class="btn btn-dark">Confirma</button>
+          </form>
+      </div>
+    </div>
+    {% endblock body %}

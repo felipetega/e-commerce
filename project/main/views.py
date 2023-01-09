@@ -52,47 +52,83 @@ def login(request):
 
 @login_required(login_url="/auth/login/")
 def home(request):
+  if request.method == "GET": 
+    #CURRENT USER
+    current_user = request.user
 
-  #CURRENT USER
-  current_user = request.user
+    #PRODUTOS
+    produtos=Product.objects.all()
 
-  #PRODUTOS
-  produtos=Product.objects.all()
+    #CART
+    cart=Cart.objects.all()
+    cart = cart.filter(user=current_user)
 
-  #CART
-  cart=Cart.objects.all()
-  cart = cart.filter(user=current_user)
+    #CART ITEMS
+    cartItems = CartItems.objects.all()
+    cartItems = cartItems.filter(user=current_user)
 
-  #CART ITEMS
-  cartItems = CartItems.objects.all()
-  cartItems = cartItems.filter(user=current_user)
+    #FILTROS
 
-  #FILTROS
-
-  filtros={"Selecione um filtro":0,"Menor Preço":1,"Maior Score":2,"Ordem alfabética":3}
-  filtro_selecionado= request.GET.get('filtro_selecionado')
-  if filtro_selecionado=="1":
-    produtos=produtos.order_by('product_price')
-  elif filtro_selecionado=="2":
-    produtos=produtos.order_by('-product_score')
-  elif filtro_selecionado=="3":
-    produtos=produtos.order_by('product_name')
-
-
-  filtro_nome= request.GET.get('filtro_nome')
-  if filtro_nome:
-    produtos = produtos.filter(product_name__icontains=filtro_nome)
-
-  
+    filtros={"Selecione um filtro":0,"Menor Preço":1,"Maior Score":2,"Ordem alfabética":3}
+    filtro_selecionado= request.GET.get('filtro_selecionado')
+    if filtro_selecionado=="1":
+      produtos=produtos.order_by('product_price')
+    elif filtro_selecionado=="2":
+      produtos=produtos.order_by('-product_score')
+    elif filtro_selecionado=="3":
+      produtos=produtos.order_by('product_name')
 
 
-    
-  context = {'produtos': produtos,
-              'cart':cart,
+    filtro_nome= request.GET.get('filtro_nome')
+    if filtro_nome:
+      produtos = produtos.filter(product_name__icontains=filtro_nome)
+
+    formas_pagamento = {"Selecione opção de pagamento":0,"Cartão de Crédito":2,"Pix":3,"Boleto":4}
+
+
+      
+    context = {'produtos': produtos,
+                'cart':cart,
+                'cartItems':cartItems,
+                'filtros':filtros,
+                'formas_pagamento':formas_pagamento,}
+
+    return render(request, "main/home.html", context)
+  elif request.method == "POST":
+    return redirect('/checkout')
+
+def checkout(request):
+  if request.method == "GET":
+
+    #CURRENT USER
+    current_user = request.user
+
+    #CART
+    cart=Cart.objects.all()
+    cart = cart.filter(user=current_user)
+
+    #CART ITEMS
+    cartItems = CartItems.objects.all()
+    cartItems = cartItems.filter(user=current_user)
+
+    formas_pagamento = {"Selecione opção de pagamento":0,"Cartão de Crédito":2,"Pix":3,"Boleto":4}
+
+    context = {'cart':cart,
               'cartItems':cartItems,
-              'filtros':filtros}
+              'formas_pagamento':formas_pagamento,}
 
-  return render(request, "main/home.html", context)
+    return render(request, "main/checkout.html", context)
+  else:
+    cliente_nome = request.POST.get('cliente_nome')
+    cliente_senha = request.POST.get('cliente_senha')
+
+    user = authenticate(username=cliente_nome, password=cliente_senha)
+
+    if user:
+      login_django(request, user)
+      return redirect('/home')
+    else:
+      return HttpResponse('Usuário e/ou senha inválido(s)')
 
 
 def create_cartitem(request, pk):
@@ -123,7 +159,7 @@ def addition(request, id):
     cart_item = CartItems.objects.get(user=request.user, product=product.product_id)
     cart_item.quantity = cart_item.quantity + 1
     cart_item.save()
-    return redirect('/home?open_cart')
+    return redirect('/checkout')
 
 def subtract(request, id):
     product = Product.objects.get(product_id=id)
@@ -134,7 +170,7 @@ def subtract(request, id):
         cart_item.delete()
     else:
         cart_item.save()
-    return redirect('/home?open_cart')
+    return redirect('/checkout')
 
 def remove(request, id):
     product = Product.objects.get(product_id=id)
@@ -144,5 +180,5 @@ def remove(request, id):
     cart.total_price = round(cart.total_price,2)
     cart.save()
     cart_item.delete()
-    return redirect('/home?open_cart')
+    return redirect('/checkout')
 

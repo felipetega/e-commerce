@@ -6,6 +6,7 @@ from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete, post_delete
 from django.db.models import Sum
+from django.db.models import Count
 
 
 
@@ -21,6 +22,18 @@ class Product(models.Model):
     def __str__(self):
         return f"{self.product_name}"
 
+PAYMENT_METHOD = (
+    ('CC', 'Cartão de Crédito'),
+    ('CD', 'Cartão de Débito'),
+    ('B', 'Boleto'),
+    ('P', 'PIX')
+)
+
+ORDER_STATUS = (
+    ('1', 'Aguardando pagamento'),
+    ('2', 'Mercadoria à caminho'),
+    ('3', 'Entregue'),
+)
 
 User = settings.AUTH_USER_MODEL
 class Cart(models.Model):
@@ -33,6 +46,17 @@ class Cart(models.Model):
     def __str__(self):
         return str(self.total_price)
 
+
+
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE) 
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE) 
+    address = models.CharField(max_length=255)
+    payment_method = models.CharField(choices=PAYMENT_METHOD, max_length=2)
+    order_status = models.CharField(choices=ORDER_STATUS, max_length=2)
+
+    def __str__(self):
+        return str(self.cart)
 
 
 class CartItems(models.Model):
@@ -48,9 +72,27 @@ class CartItems(models.Model):
         #return str(self.user.username) + " " + str(self.price)
 
     def __str__(self):
-        return f"{str(self.product)} | Quantidade: {str(self.quantity)} | Subtotal: R${str(self.price)}"
+        return f"{str(self.product)} | Quantidade: {str(self.quantity)} | {str(self.price)}"
+'''
+#CREATE CART ??? IS WORKING?
+@receiver(post_save, sender=User)
+def create_cart_for_new_user(sender, instance, created, **kwargs):
+    if created:
+        # Check if the user already has a Cart object
+        try:
+            instance.cart
+        except Cart.DoesNotExist:
+            # If the user does not have a Cart object, create one
+            cart = Cart.objects.create(user=instance)
+            cart.save()
+        else:
+            # If the user already has a Cart object, do nothing
+            pass
+'''
 
 
+
+# Update fee and subtotal and total_price
 @receiver(post_save, sender=CartItems)
 def update_cart_fee_and_subtotal(sender, instance, **kwargs):
     # Get the Cart object associated with the CartItems object
@@ -75,9 +117,17 @@ def update_cart_fee_and_subtotal(sender, instance, **kwargs):
     # Save the changes to the Cart object
     cart.save()
 
+#Update CartItem price
+@receiver(pre_save, sender=CartItems)
+def update_cart_fee_and_subtotal(sender, instance, **kwargs):
+    # Get the Cart object associated with the CartItems object
+    cart = instance.cart
+    #Update CartItem price
+    instance.price = instance.product.product_price * instance.quantity
+    # Save the changes to the Cart object
+    cart.save()
 
-from django.db.models import Count
-
+# Update fee and subtotal and total_price ao deletar item do carrinho
 @receiver(post_delete, sender=CartItems)
 def update_fee_and_subtotal_on_delete(sender, instance, **kwargs):
     # Recupera o item que está sendo removido e o carrinho ao qual ele pertence
@@ -101,10 +151,11 @@ def update_fee_and_subtotal_on_delete(sender, instance, **kwargs):
     total_price = subtotal + fee
     # Atualiza o valor de total_price do carrinho
     cart.total_price = total_price
-
+    #Update CartItem price
+    price_of_product = Product.objects.get(product_id=instance.product.product_id)
+    instance.price = float(price_of_product.product_price) * instance.quantity
     # Salva as alterações no carrinho
     cart.save()
-
 
 
 '''

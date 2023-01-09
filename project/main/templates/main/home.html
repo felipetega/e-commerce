@@ -41,7 +41,11 @@
           <p>R$ {{ produto.product_price }}</p>
           <p>SCORE: {{ produto.product_score }}</p>
           <button onclick="location.href = '{% url 'create_cartitem' produto.product_id %}'" type="button" class="btn btn-outline-dark">Adiconar ao carrinho</button>
-          <button onclick="openCart()" type="button" class="btn btn-outline-dark">Ir para o carrinho</button>
+          <form action="{% url 'home' %}" method="POST"> {% csrf_token %}
+
+            <button type="submit" class="btn btn-outline-dark">Ir para o carrinho</button>
+
+          </form>
         </div>
       </div>
     </div>
