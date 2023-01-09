@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as login_django
 from django.contrib.auth.decorators import login_required
-from .models import Product, Cart, CartItems
+from .models import Product, Cart, CartItems, Order
 
 def index(request):
   return redirect('/login')
@@ -118,17 +118,31 @@ def checkout(request):
               'formas_pagamento':formas_pagamento,}
 
     return render(request, "main/checkout.html", context)
-  else:
-    cliente_nome = request.POST.get('cliente_nome')
-    cliente_senha = request.POST.get('cliente_senha')
+  elif request.method == "POST":
+    # CURRENT USER
+    current_user = request.user
 
-    user = authenticate(username=cliente_nome, password=cliente_senha)
+    # CART
+    cart = Cart.objects.all().filter(user=current_user).first()
 
-    if user:
-      login_django(request, user)
-      return redirect('/home')
-    else:
-      return HttpResponse('Usuário e/ou senha inválido(s)')
+    # Cria uma nova instância de Order
+    order = Order.objects.create(
+        user=request.user,
+        cart=cart,
+        address=request.POST['address'],
+        payment_method=request.POST['payment_method'],
+    )
+
+    # Salva a instância de Order
+    order.save()
+
+    # Atualiza o campo ordered do carrinho
+    cart.ordered = True
+
+    # Salva as alterações no carrinho
+    cart.save()
+
+    return redirect('/home')
 
 
 def create_cartitem(request, pk):

@@ -65,11 +65,11 @@
             {% endfor %}
 
             <label for="address" class="form-label">Endereço</label>
-            <input class="form-control form-control-lg" type="text" placeholder="Endereço" aria-label=".form-control-lg example" id="address">
+            <input class="form-control form-control-lg" type="text" placeholder="Endereço" aria-label=".form-control-lg example" id="address" name="address">
             <div class="mb-3">
       
               <label for="payment_method" class="form-label">Forma de pagamento</label>
-              <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" id="payment_method">
+              <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" id="payment_method" name="payment_method">
                 {% for name, value in formas_pagamento.items %}
                 <option value="{{value}}">{{name}}</option>
             {% endfor %}
