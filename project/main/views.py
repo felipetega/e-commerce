@@ -125,10 +125,14 @@ def checkout(request):
     # CART
     cart = Cart.objects.all().filter(user=current_user).first()
 
+    #CART ITEMS
+    cart_items = CartItems.objects.all().filter(user=current_user).first()
+
     # Cria uma nova instância de Order
     order = Order.objects.create(
         user=request.user,
         cart=cart,
+        cart_items = cart_items,
         address=request.POST['address'],
         payment_method=request.POST['payment_method'],
     )

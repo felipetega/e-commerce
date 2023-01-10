@@ -48,15 +48,6 @@ class Cart(models.Model):
 
 
 
-class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE) 
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE) 
-    address = models.CharField(max_length=255)
-    payment_method = models.CharField(choices=PAYMENT_METHOD, max_length=2)
-    order_status = models.CharField(choices=ORDER_STATUS, max_length=2)
-
-    def __str__(self):
-        return str(self.cart)
 
 class CartItems(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
@@ -72,6 +63,20 @@ class CartItems(models.Model):
 
     def __str__(self):
         return f"{str(self.product)} | Quantidade: {str(self.quantity)} | {str(self.price)}"
+
+
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE) 
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE) 
+    cart_items = models.ForeignKey(CartItems, on_delete=models.CASCADE) 
+    address = models.CharField(max_length=255)
+    payment_method = models.CharField(choices=PAYMENT_METHOD, max_length=2)
+    order_status = models.CharField(choices=ORDER_STATUS, max_length=2)
+
+    def __str__(self):
+        return str(self.cart)
+
+
 '''
 #CREATE CART ??? IS WORKING?
 @receiver(post_save, sender=User)
