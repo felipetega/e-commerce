@@ -166,14 +166,16 @@ def profile(request):
 
     orders = Order.objects.all().filter(user=current_user)
     orders = orders.filter(user=current_user)
-    print(orders)
-    for order in orders:
-      print(order.cart_items)
 
-    context = {'orders':orders,
-              'cart':cart,
-              'cartItems':cartItems,
+    context = {'orders':orders
               }
+
+    for order in orders:
+        for item in order.cart_items.all():
+                print(item.product)
+                print(item.price)
+                print(item.quantity)
+
 
     return render(request, "main/profile.html", context)
 
