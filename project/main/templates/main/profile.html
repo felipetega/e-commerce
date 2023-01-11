@@ -27,7 +27,7 @@
             {% endfor %}
           </tbody>
         </table>
-        <h4>Total: R${{order.cart}}</h4>
+        <h6>Subtotal: R${{order.cart.subtotal}}+ Frete: R${{order.cart.fee}}= Total: R${{order.cart}}</h6>
         {% endfor %}
 
       </div>
