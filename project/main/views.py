@@ -133,8 +133,8 @@ def checkout(request):
         user=request.user,
         cart=cart,
         cart_items = cart_items,
-        address=request.POST['address'],
-        payment_method=request.POST['payment_method'],
+        #address=request.POST['address'],
+        #payment_method=request.POST['payment_method'],
     )
 
     # Salva a instância de Order
@@ -148,6 +148,34 @@ def checkout(request):
 
     return redirect('/home')
 
+def profile(request):
+  if request.method == "GET":
+
+    #CURRENT USER
+    current_user = request.user
+
+    #CART
+    cart=Cart.objects.all()
+    cart = cart.filter(user=current_user)
+
+    #CART ITEMS
+    cartItems = CartItems.objects.all()
+    cartItems = cartItems.filter(user=current_user)
+
+    formas_pagamento = {"Selecione opção de pagamento":0,"Cartão de Crédito":2,"Pix":3,"Boleto":4}
+
+    orders = Order.objects.all().filter(user=current_user)
+    orders = orders.filter(user=current_user)
+    print(orders)
+    for order in orders:
+      print(order.cart_items)
+
+    context = {'orders':orders,
+              'cart':cart,
+              'cartItems':cartItems,
+              }
+
+    return render(request, "main/profile.html", context)
 
 def create_cartitem(request, pk):
     # Recupera o produto selecionado pelo usuário

@@ -20,7 +20,9 @@
       <header>
         <nav class="navbar navbar-dark bg-dark fixed-top">
           <div class="container-fluid">
+            <a href="{% url 'profile' %}">
             <img src="{% static 'base/img/user.png' %}" height="40px">
+          </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" id="open-cart-button">
               <img src="{% static 'base/img/cart-icon.svg' %}" height="30px">
             </button>
@@ -33,7 +35,7 @@
                 <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                 
                 {% comment %} CART ITENS {% endcomment %}
-                <form action="{% url 'home' %}" method="POST"> {% csrf_token %}
+                {% comment %} <form action="{% url 'home' %}" method="POST"> {% csrf_token %} {% endcomment %}
                 {% for item in cartItems %}
                 <div class="row cart-list-item">                     
                   <div class="col-md-5">
@@ -69,10 +71,11 @@
                   <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">Frete: R${{total.fee}} Subtotal: R${{total.subtotal}} Total: R${{total.total_price}}</h5>
                   {% endfor %}
 
+                  <a href="{% url 'checkout' %}">
+                  <button type="button" class="btn btn-light btn-lg btn-block">Continuar</button>
+                  </a>
 
-                  <button type="submit" class="btn btn-light btn-lg btn-block">Continuar</button>
-
-                </form>
+                {% comment %} </form> {% endcomment %}
               </div>
             </div>
           </div>
