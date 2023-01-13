@@ -35,29 +35,12 @@
                 <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                 
                 {% comment %} CART ITENS {% endcomment %}
-                {% comment %} <form action="{% url 'home' %}" method="POST"> {% csrf_token %} {% endcomment %}
                 {% for item in cartItems %}
                 <div class="row cart-list-item">                     
                   <div class="col-md-5">
                     <img src="{{item.product.product_img.url}}" class="" height="160px" width="120px">
                   </div>             
                   <div class="col-md-7">
-
-                    {% comment %} BUTTONS
-                    <div class="d-flex">
-                      <div class="mx-1" onclick="location.href = '{% url 'addition' item.product.product_id %}'">
-                        <img src="{% static 'base/img/add.png' %}" height="50px" width="50px">
-                      </div>
-                    
-                      <div class="mx-1" onclick="location.href = '{% url 'subtract' item.product.product_id %}'">
-                        <img src="{% static 'base/img/minus.png' %}" height="50px" width="50px">
-                      </div>
-                    
-                      <div class="mx-1" onclick="location.href = '{% url 'remove' item.product.product_id %}'">
-                        <img src="{% static 'base/img/delete1.png' %}" height="50px" width="50px">
-                      </div>
-                    </div> {% endcomment %}
-                    
 
 
                     <a class="nav-link" href="#">{{item}}</a>

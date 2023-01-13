@@ -1,82 +1,160 @@
 {% extends 'base.html' %} {% load static %} {% block head %}
 
-<link href="{% static 'main/css/home.css' %}" rel="stylesheet" />
+{% comment %} <link href="{% static 'main/css/home.css' %}" rel="stylesheet" /> {% endcomment %}
+<link href="{% static 'main/css/checkout.css' %}" rel="stylesheet" />
+<!-- Bootstrap 5.1 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
 {% endblock head %} {% block body %}
 
 
     <div class="d-flex justify-content-center">
       <div style="width: 50vw;">
           <form action="{% url 'checkout' %}" method="POST"> {% csrf_token %}
-      
-            <table class="table align-middle mb-0 bg-white">
-              <thead class="bg-light">
-                <tr>
-                  <th></th>
-                  <th>Nome</th>
-                  <th>Quantidade</th>
-                  <th>Subtotal</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for item in cartItems %}
-                <tr>
-                  <td>
-                    <div class="d-flex align-items-center">
-                      <img
-                          src="{{item.product.product_img.url}}"
-                          alt=""
-                          style="width: 45px; height: 45px"
-                          class="rounded-circle"
-                          />
-                    </div>
-                  </td>
-                  <td>
-                    <p class="fw-bold mb-1">{{item.product}}</p>
-                  </td>
-                  <td>
-                    <p class="fw-bold mb-1">{{item.quantity}}</p>
-                  </td>
-                  <td>
-                    <p class="fw-bold mb-1">{{item.price}}</p>
-                  </td>
-                  <td>
-                    <div class="d-flex">
-                      <div class="mx-1" onclick="location.href = '{% url 'addition' item.product.product_id %}'">
-                        <img src="{% static 'base/img/add.png' %}" height="30px" width="30px">
-                      </div>
-                    
-                      <div class="mx-1" onclick="location.href = '{% url 'subtract' item.product.product_id %}'">
-                        <img src="{% static 'base/img/minus.png' %}" height="30px" width="30px">
-                      </div>
-                    
-                      <div class="mx-1" onclick="location.href = '{% url 'remove' item.product.product_id %}'">
-                        <img src="{% static 'base/img/delete1.png' %}" height="30px" width="30px">
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-            
-            {% for total in cart %}
-            <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">Frete: R${{total.fee}} Subtotal: R${{total.subtotal}} Total: R${{total.total_price}}</h5>
-            {% endfor %}
 
-            {% comment %} <label for="address" class="form-label">Endereço</label>
-            <input class="form-control form-control-lg" type="text" placeholder="Endereço" aria-label=".form-control-lg example" id="address" name="address">
-            <div class="mb-3">
-      
-              <label for="payment_method" class="form-label">Forma de pagamento</label>
-              <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" id="payment_method" name="payment_method">
-                {% for name, value in formas_pagamento.items %}
-                <option value="{{value}}">{{name}}</option>
-            {% endfor %}
-              </select> {% endcomment %}
-            <div class="hstack gap-3">
-              <button value="login" type="submit" class="btn btn-dark">Confirma</button>
+            <div class="">
+              <div class="accordion" id="accordionExample">
+              <div class="steps">
+                  <progress id="progress" value=0 max=100 ></progress>
+                  <div class="step-item">
+                    <button class="step-button text-center btn btn-floating" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    <img  src="{% static 'main/img/cart.png' %}" height="30px">
+                </button>
+                <div class="step-title">
+                    Carrinho
+                </div>
+                  </div>
+                  <div class="step-item">
+                      <button class="step-button text-center collapsed" type="button" data-bs-toggle="collapse"
+                          data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                          <img  src="{% static 'main/img/home.png' %}" height="30px">
+                        </button>
+                        <div class="step-title">
+                            Endereço
+                        </div>
+                  </div>
+                  <div class="step-item">
+                      <button class="step-button text-center collapsed" type="button" data-bs-toggle="collapse"
+                          data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                          <img  src="{% static 'main/img/card.png' %}" height="30px">
+                        </button>
+                        <div class="step-title">
+                            Pagamento
+                        </div>
+                  </div>
+              </div>
+              
+              <div class="card">
+                  <div  id="headingOne">
+                  </div>
+              
+                  <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
+                      data-bs-parent="#accordionExample">
+                      <div class="">
+                        <table class="table align-middle mb-0 bg-white">
+                          <thead class="bg-light">
+                            <tr>
+                              <th></th>
+                              <th>Nome</th>
+                              <th>Quantidade</th>
+                              <th>Subtotal</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for item in cartItems %}
+                            <tr>
+                              <td>
+                                <div class="d-flex align-items-center">
+                                  <img
+                                      src="{{item.product.product_img.url}}"
+                                      alt=""
+                                      style="width: 45px; height: 45px"
+                                      class="rounded-circle"
+                                      />
+                                </div>
+                              </td>
+                              <td>
+                                <p class="fw-bold mb-1">{{item.product}}</p>
+                              </td>
+                              <td>
+                                <p class="fw-bold mb-1">{{item.quantity}}</p>
+                              </td>
+                              <td>
+                                <p class="fw-bold mb-1">{{item.price}}</p>
+                              </td>
+                              <td>
+                                <div class="d-flex">
+                                  <div class="mx-1" onclick="location.href = '{% url 'addition' item.product.product_id %}'">
+                                    <img src="{% static 'base/img/add.png' %}" height="30px" width="30px">
+                                  </div>
+                                
+                                  <div class="mx-1" onclick="location.href = '{% url 'subtract' item.product.product_id %}'">
+                                    <img src="{% static 'base/img/minus.png' %}" height="30px" width="30px">
+                                  </div>
+                                
+                                  <div class="mx-1" onclick="location.href = '{% url 'remove' item.product.product_id %}'">
+                                    <img src="{% static 'base/img/delete1.png' %}" height="30px" width="30px">
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                            {% endfor %}                
+                          </tbody>
+                        </table>
+                      </div>
+                      {% for total in cart %}
+                      <p class="h6" id="offcanvasDarkNavbarLabel">Total: R${{total.total_price}} Frete: R${{total.fee}} Subtotal: R${{total.subtotal}}</p>
+                      {% endfor %}
+                    </div>
+                  </div>
+              <div class="card">
+                  <div  id="headingTwo">
+              
+                  </div>
+                  <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                      <div class="">
+                          your content goes here...
+                      </div>
+                  </div>
+              </div>
+              <div class="card">
+                  <div  id="headingThree">
+              
+                  </div>
+                  <div id="collapseThree" class="collapse" aria-labelledby="headingThree"
+                      data-bs-parent="#accordionExample">
+                      <div class="">
+                          your content goes here...
+                      </div>
+                  </div>
+              </div>
+              </div>
+              </div>
           </form>
       </div>
     </div>
+
+    <!-- Bootstrap 5 JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+<!-- Stepper JavaScript -->
+<script>
+const stepButtons = document.querySelectorAll('.step-button');
+const progress = document.querySelector('#progress');
+
+Array.from(stepButtons).forEach((button,index) => {
+    button.addEventListener('click', () => {
+        progress.setAttribute('value', index * 100 /(stepButtons.length - 1) );//there are 3 buttons. 2 spaces.
+
+        stepButtons.forEach((item, secindex)=>{
+            if(index > secindex){
+                item.classList.add('done');
+            }
+            if(index < secindex){
+                item.classList.remove('done');
+            }
+        })
+    })
+})
+</script>
     {% endblock body %}

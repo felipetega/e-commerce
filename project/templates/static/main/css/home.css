@@ -1,3 +1,33 @@
 .btn{
   margin: 0 0 10px 0;
 }
+
+/*CARDS*/
+.card{
+  margin: 0 0 0 0;
+  padding: 10px 0 0 0;
+}
+
+.card img{
+  height: 60vw;
+  max-height: 350px
+}
+
+.carousel-item img{
+  height: 20vw;
+}
+
+.cart-list-item{
+  margin: 0 0 10px 0;
+}
+
+@supports (display: flex) {
+  @media screen and (max-width: 600px) {
+    .card img{
+      height: 60vh;
+    }
+    .carousel-item img{
+      height: 20vh;
+    }
+  }
+}
