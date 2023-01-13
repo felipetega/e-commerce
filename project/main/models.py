@@ -68,7 +68,7 @@ class CartItems(models.Model):
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE) 
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE) 
-    cart_items = models.ManyToManyField(CartItems)
+    cart_items = models.ForeignKey(CartItems, on_delete=models.CASCADE) 
     #address = models.CharField(max_length=255)
     #payment_method = models.CharField(choices=PAYMENT_METHOD, max_length=2)
     #order_status = models.CharField(choices=ORDER_STATUS, max_length=2)

@@ -128,18 +128,6 @@ def checkout(request):
     #CART ITEMS
     cart_items = CartItems.objects.all().filter(user=current_user).first()
 
-    # Cria uma nova instância de Order
-    order = Order.objects.create(
-        user=request.user,
-        cart=cart,
-        cart_items = cart_items,
-        #address=request.POST['address'],
-        #payment_method=request.POST['payment_method'],
-    )
-
-    # Salva a instância de Order
-    order.save()
-
     # Atualiza o campo ordered do carrinho
     cart.ordered = True
 
@@ -156,26 +144,14 @@ def profile(request):
 
     #CART
     cart=Cart.objects.all()
-    cart = cart.filter(user=current_user)
+    cart = cart.filter(user=current_user, ordered=True)
 
-    #CART ITEMS
     cartItems = CartItems.objects.all()
     cartItems = cartItems.filter(user=current_user)
 
-    formas_pagamento = {"Selecione opção de pagamento":0,"Cartão de Crédito":2,"Pix":3,"Boleto":4}
-
-    orders = Order.objects.all().filter(user=current_user)
-    orders = orders.filter(user=current_user)
-
-    context = {'orders':orders
+    context = {'cart':cart,
+              'cartItems':cartItems
               }
-
-    for order in orders:
-        for item in order.cart_items.all():
-                print(item.product)
-                print(item.price)
-                print(item.quantity)
-
 
     return render(request, "main/profile.html", context)
 

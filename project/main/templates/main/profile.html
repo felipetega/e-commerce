@@ -7,8 +7,8 @@
     <div class="d-flex justify-content-center">
       <div style="width: 50vw;">
         <h2>Meus pedidos</h2>
-        {% for order in orders %}
-        <h3>#{{order.id}}</h3>
+        {% for cart in cart %}
+        <h3>#{{cart.id}}</h3>
         <table class="table table-hover">
           <thead>
             <tr>
@@ -18,7 +18,7 @@
             </tr>
           </thead>
           <tbody>
-            {% for item in order.cart_items.all %}
+            {% for item in cartItems %}
             <tr>
               <th scope="row">{{item.product}}</th>
               <td>{{item.quantity}}</td>
@@ -27,7 +27,7 @@
             {% endfor %}
           </tbody>
         </table>
-        <h6>Subtotal: R${{order.cart.subtotal}}+ Frete: R${{order.cart.fee}}= Total: R${{order.cart}}</h6>
+        <h6>Subtotal: R${{cart.subtotal}}+ Frete: R${{cart.fee}}= Total: R${{cart}}</h6>
         {% endfor %}
 
       </div>
