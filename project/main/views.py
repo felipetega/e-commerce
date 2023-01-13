@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as login_django
 from django.contrib.auth.decorators import login_required
-from .models import Product, Cart, CartItems, Order
+from .models import Product, Cart, CartItems
 
 def index(request):
   return redirect('/login')
