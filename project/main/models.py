@@ -7,6 +7,7 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_delete, post_delete
 from django.db.models import Sum
 from django.db.models import Count
+User = settings.AUTH_USER_MODEL
 
 
 
@@ -23,8 +24,8 @@ class Product(models.Model):
         return f"{self.product_name}"
 
 PAYMENT_METHOD = (
-    ('CC', 'Cartão de Crédito'),
-    ('CD', 'Cartão de Débito'),
+    ('C', 'Cartão de Crédito'),
+    ('D', 'Cartão de Débito'),
     ('B', 'Boleto'),
     ('P', 'PIX')
 )
@@ -35,13 +36,40 @@ ORDER_STATUS = (
     ('3', 'Entregue'),
 )
 
-User = settings.AUTH_USER_MODEL
+class Payment(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
+    payment_method = models.CharField(max_length=1, choices=PAYMENT_METHOD)
+    cod = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f'{str(self.payment_method)}'
+
+
+class Address(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
+    city = models.CharField(max_length=100)
+    street = models.CharField(max_length=100)
+    number = models.IntegerField()
+    cep = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f'({str(self.cep)})'
+
+    class Meta:
+        verbose_name_plural = 'Addresses'
+
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE) 
     ordered = models.BooleanField(default=False)
     total_price = models.FloatField(default=0)
     fee = models.FloatField(default=0)
     subtotal = models.FloatField(default=0)
+    address = models.ForeignKey(
+        Address, on_delete=models.SET_NULL, blank=True, null=True)
+    payment = models.ForeignKey(
+        Payment, on_delete=models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
         return str(self.total_price)
@@ -57,13 +85,11 @@ class CartItems(models.Model):
     total_items = models.IntegerField(default=0)
     quantity = models.IntegerField(default=1)
 
-
-    #def __str__(self):
-        #return str(self.user.username) + " " + str(self.price)
-
     def __str__(self):
         return f"{str(self.product)} | Quantidade: {str(self.quantity)} | {str(self.price)}"
 
+    class Meta:
+        verbose_name_plural = 'Cart Items'
 
 
 '''

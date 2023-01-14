@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as login_django
 from django.contrib.auth.decorators import login_required
-from .models import Product, Cart, CartItems
+from .models import Product, Cart, CartItems, Address, Payment
 
 def index(request):
   return redirect('/login')
@@ -111,7 +111,9 @@ def checkout(request):
     cartItems = CartItems.objects.all()
     cartItems = cartItems.filter(user=current_user)
 
-    formas_pagamento = {"Selecione opção de pagamento":0,"Cartão de Crédito":2,"Pix":3,"Boleto":4}
+    address = Address.objects.all().filter(user=current_user).first()
+
+    formas_pagamento = {"Selecione opção de pagamento":0,"Cartão de Crédito":"C","Cartão de Débito":"D","Pix":"P","Boleto":"B"}
 
     context = {'cart':cart,
               'cartItems':cartItems,
@@ -125,14 +127,21 @@ def checkout(request):
     # CART
     cart = Cart.objects.all().filter(user=current_user).first()
 
-    #CART ITEMS
-    cart_items = CartItems.objects.all().filter(user=current_user).first()
-
     # Atualiza o campo ordered do carrinho
     cart.ordered = True
 
     # Salva as alterações no carrinho
     cart.save()
+
+    #ADDRESS
+    address = Address.objects.create(user=current_user, city=request.POST['city'], street=request.POST['street'], number=request.POST['number'], cep=request.POST['cep'])
+
+    address.save()
+
+    #PAYMENT
+    payment = Payment.objects.create(user=current_user, payment_method=request.POST['payment_method'], cod=request.POST['cod'])
+
+    payment.save()
 
     return redirect('/home')
 

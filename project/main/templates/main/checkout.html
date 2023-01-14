@@ -114,7 +114,16 @@
                   </div>
                   <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
                       <div class="">
-                          your content goes here...
+                        <div class="mb-3">
+                          <label for="cidade" class="form-label">Cidade</label>
+                          <input type="text" class="form-control" id="cidade" placeholder="Cidade" name="city">
+                          <label for="rua" class="form-label">Rua</label>
+                          <input type="text" class="form-control" id="rua" placeholder="Rua" name="street">
+                          <label for="numero" class="form-label">Número</label>
+                          <input type="number" class="form-control" id="numero" placeholder="123" name="number">
+                          <label for="cep" class="form-label">CEP</label>
+                          <input type="text" class="form-control" id="cep" placeholder="CEP" name="cep">
+                        </div>
                       </div>
                   </div>
               </div>
@@ -125,12 +134,22 @@
                   <div id="collapseThree" class="collapse" aria-labelledby="headingThree"
                       data-bs-parent="#accordionExample">
                       <div class="">
-                          your content goes here...
+                        <div class="mb-3">
+                          <label for="payment_method" class="form-label">Forma de pagamento</label>
+                          <select class="form-select" name="payment_method">
+                            {% for name, value in formas_pagamento.items %}
+                                  <option value="{{value}}">{{name}}</option>
+                              {% endfor %}
+                          </select>
+                          <label for="cod" class="form-label">Código</label>
+                          <input type="text" class="form-control" id="cod" placeholder="Código" name="cod">
+                        </div>
                       </div>
                   </div>
               </div>
               </div>
-              </div>
+            </div>
+            <button type="submit" class="btn btn-dark">Enviar</button>
           </form>
       </div>
     </div>
