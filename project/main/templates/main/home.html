@@ -8,22 +8,23 @@
 <form action="{% url 'home' %}" method="GET">{% csrf_token %}
   <div class="row">
                       
-    <div class="col-md-5">
-        <input type="text" placeholder="Busque pelo nome" class="form-control" name="filtro_nome">
-    </div>
-
     <div class="col-md-4">
-        <select class="form-select" name="filtro_selecionado">
+        <select class="form-select" name="filtro_selecionado" onchange="this.form.submit()">
           {% for name, value in filtros.items %}
                 <option value="{{value}}">{{name}}</option>
             {% endfor %}
         </select>
     </div>
-
-
-  <div class="col-md-3">
-    <input type="submit" value="FILTRAR" class="btn btn-lg btn-orange">
-  </div>
+    
+    
+    <div class="col-md-5">
+      <input type="text" placeholder="Busque pelo nome" class="form-control" name="filtro_nome">
+    </div>
+    
+    
+    <div class="col-md-3">
+      <input type="submit" value="FILTRAR" class="btn btn-lg btn-dark">
+    </div>
   </div>
 </form>
 {% comment %} FILTROS {% endcomment %}

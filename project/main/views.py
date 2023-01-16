@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as login_django
 from django.contrib.auth.decorators import login_required
-from .models import Product, Cart, CartItems, Address, Payment
+from .models import Product, Cart, CartItems, Address, CreditCard, EXPIRY_MONTH, EXPIRY_YEAR
 
 def index(request):
   return redirect('/login')
@@ -113,11 +113,14 @@ def checkout(request):
 
     address = Address.objects.all().filter(user=current_user).first()
 
-    formas_pagamento = {"Selecione opção de pagamento":0,"Cartão de Crédito":"C","Cartão de Débito":"D","Pix":"P","Boleto":"B"}
+    expiry_year = {0:"Selecione o ano de expiração",'2023':'2023','2024':'2024','2025':'2025','2026':'2026','2027':'2027','2028':'2028'}
+
+    expiry_month = {0:"Selecione o mês de expiração",'1':'Janeiro','2':'Fevereiro','3':'Março','4':'Abril','5':'Maio','6':'Junho','7':'Julho','8':'Agosto','9':'Setembro','10':'Outubro','11':'Novembro','12':'Dezembro'}
 
     context = {'cart':cart,
               'cartItems':cartItems,
-              'formas_pagamento':formas_pagamento,}
+              'expiry_year':expiry_year,
+              'expiry_month':expiry_month}
 
     return render(request, "main/checkout.html", context)
   elif request.method == "POST":
@@ -139,7 +142,7 @@ def checkout(request):
     address.save()
 
     #PAYMENT
-    payment = Payment.objects.create(user=current_user, payment_method=request.POST['payment_method'], cod=request.POST['cod'])
+    payment = CreditCard.objects.create(user=current_user, card_number=request.POST['card_number'], cvv=request.POST['cvv'], expiry_year=request.POST['expiry_year'], expiry_month=request.POST['expiry_month'], cardholder_name=request.POST['cardholder_name'], document_id=request.POST['document_id'], )
 
     payment.save()
 
@@ -151,6 +154,15 @@ def profile(request):
     #CURRENT USER
     current_user = request.user
 
+    #ADDRESS
+    addresses = Address.objects.all()
+    addresses = addresses.filter(user=current_user)
+
+    #CARDS
+    cards = CreditCard.objects.all()
+    cards=cards.filter(user=current_user)
+
+
     #CART
     cart=Cart.objects.all()
     cart = cart.filter(user=current_user, ordered=True)
@@ -159,7 +171,9 @@ def profile(request):
     cartItems = cartItems.filter(user=current_user)
 
     context = {'cart':cart,
-              'cartItems':cartItems
+              'cartItems':cartItems,
+              'addresses':addresses,
+              'cards':cards
               }
 
     return render(request, "main/profile.html", context)

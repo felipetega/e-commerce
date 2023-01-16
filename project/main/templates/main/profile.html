@@ -6,6 +6,15 @@
 
     <div class="d-flex justify-content-center">
       <div style="width: 50vw;">
+        <h1 class="h1">Olá, Sr(a) {{user.username}}</h1>
+        <p class="h6">Usuário: {{user.username}}</p>
+        <p class="h6">Email: {{user.email}}</p>
+        <p class="h6">Endereços registrados: {% for address in addresses %}
+          {{address}}
+          {% endfor %}</p>
+        <p class="h6">Cartões registrados: {% for card in cards %}
+            {{card}}
+          {% endfor %}</p>
         <h2>Meus pedidos</h2>
         {% for cart in cart %}
         <h3>#{{cart.id}}</h3>

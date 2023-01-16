@@ -23,27 +23,43 @@ class Product(models.Model):
     def __str__(self):
         return f"{self.product_name}"
 
-PAYMENT_METHOD = (
-    ('C', 'Cartão de Crédito'),
-    ('D', 'Cartão de Débito'),
-    ('B', 'Boleto'),
-    ('P', 'PIX')
+EXPIRY_YEAR = (
+    ('2023','2023'),
+    ('2024','2024'),
+    ('2025','2025'),
+    ('2026','2026'),
+    ('2027','2027'),
+    ('2028','2028'),
 )
 
-ORDER_STATUS = (
-    ('1', 'Aguardando pagamento'),
-    ('2', 'Mercadoria à caminho'),
-    ('3', 'Entregue'),
+EXPIRY_MONTH = (
+    ('1','Janeiro'),
+    ('2','Fevereiro'),
+    ('3','Março'),
+    ('4','Abril'),
+    ('5','Maio'),
+    ('6','Junho'),
+    ('7','Julho'),
+    ('8','Agosto'),
+    ('9','Setembro'),
+    ('10','Outubro'),
+    ('11','Novembro'),
+    ('12','Dezembro'),
 )
 
-class Payment(models.Model):
+class CreditCard(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
-    payment_method = models.CharField(max_length=1, choices=PAYMENT_METHOD)
-    cod = models.CharField(max_length=100)
+    card_number = models.CharField(max_length=50)
+    cvv = models.CharField(max_length=50)
+    expiry_year = models.CharField(max_length=4, choices=EXPIRY_YEAR)
+    expiry_month = models.CharField(max_length=2, choices=EXPIRY_MONTH)
+    cardholder_name = models.CharField(max_length=50)
+    document_id = models.CharField(max_length=50)
+
 
     def __str__(self):
-        return f'{str(self.payment_method)}'
+        return f'{str(self.cardholder_name)}'
 
 
 class Address(models.Model):
@@ -51,7 +67,7 @@ class Address(models.Model):
                              on_delete=models.CASCADE)
     city = models.CharField(max_length=100)
     street = models.CharField(max_length=100)
-    number = models.IntegerField()
+    number = models.CharField(max_length=50)
     cep = models.CharField(max_length=100)
 
     def __str__(self):
@@ -69,7 +85,7 @@ class Cart(models.Model):
     address = models.ForeignKey(
         Address, on_delete=models.SET_NULL, blank=True, null=True)
     payment = models.ForeignKey(
-        Payment, on_delete=models.SET_NULL, blank=True, null=True)
+        CreditCard, on_delete=models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
         return str(self.total_price)
