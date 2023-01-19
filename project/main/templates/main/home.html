@@ -42,7 +42,7 @@
           <p>R$ {{ produto.product_price }}</p>
           <p>SCORE: {{ produto.product_score }}</p>
           <button onclick="location.href = '{% url 'create_cartitem' produto.product_id %}'" type="button" class="btn btn-outline-dark">Adiconar ao carrinho</button>
-          <a href="{% url 'checkout' %}">
+          <a href="{% url 'authorization' %}">
 
             <button type="submit" class="btn btn-outline-dark">Ir para o carrinho</button>
 

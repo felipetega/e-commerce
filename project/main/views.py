@@ -10,7 +10,14 @@ from django.contrib.auth.decorators import login_required
 from .models import Product, Cart, CartItems, Address, CreditCard, EXPIRY_MONTH, EXPIRY_YEAR
 
 def index(request):
-  return redirect('/login')
+  return redirect('/home')
+
+
+def authorization(request):
+  if request.user.is_authenticated:
+    return redirect('/checkout')
+  else:
+    return redirect('/login')
 
 
 def register(request):
@@ -49,54 +56,86 @@ def login(request):
       return HttpResponse('Usuário e/ou senha inválido(s)')
 
 
-
-@login_required(login_url="/auth/login/")
 def home(request):
   if request.method == "GET": 
-    #CURRENT USER
-    current_user = request.user
-
-    #PRODUTOS
-    produtos=Product.objects.all()
-
-    #CART
-    cart=Cart.objects.all()
-    cart = cart.filter(user=current_user)
-
-    #CART ITEMS
-    cartItems = CartItems.objects.all()
-    cartItems = cartItems.filter(user=current_user)
-
-    #FILTROS
-
-    filtros={"Selecione um filtro":0,"Menor Preço":1,"Maior Score":2,"Ordem alfabética":3}
-    filtro_selecionado= request.GET.get('filtro_selecionado')
-    if filtro_selecionado=="1":
-      produtos=produtos.order_by('product_price')
-    elif filtro_selecionado=="2":
-      produtos=produtos.order_by('-product_score')
-    elif filtro_selecionado=="3":
-      produtos=produtos.order_by('product_name')
-
-
-    filtro_nome= request.GET.get('filtro_nome')
-    if filtro_nome:
-      produtos = produtos.filter(product_name__icontains=filtro_nome)
-
-    formas_pagamento = {"Selecione opção de pagamento":0,"Cartão de Crédito":2,"Pix":3,"Boleto":4}
-
-
+    if request.user.is_authenticated:
       
-    context = {'produtos': produtos,
-                'cart':cart,
-                'cartItems':cartItems,
-                'filtros':filtros,
-                'formas_pagamento':formas_pagamento,}
+      #CURRENT USER
+      current_user = request.user
 
-    return render(request, "main/home.html", context)
-  elif request.method == "POST":
-    return redirect('/checkout')
+      #CART
+      cart=Cart.objects.all()
+      cart = cart.filter(user=current_user)
 
+      #CART ITEMS
+      cartItems = CartItems.objects.all()
+      cartItems = cartItems.filter(user=current_user)
+
+      #PRODUTOS
+      produtos=Product.objects.all()
+
+      #FILTROS
+
+      filtros={"Selecione um filtro":0,"Menor Preço":1,"Maior Score":2,"Ordem alfabética":3}
+      filtro_selecionado= request.GET.get('filtro_selecionado')
+      if filtro_selecionado=="1":
+        produtos=produtos.order_by('product_price')
+      elif filtro_selecionado=="2":
+        produtos=produtos.order_by('-product_score')
+      elif filtro_selecionado=="3":
+        produtos=produtos.order_by('product_name')
+
+
+      filtro_nome= request.GET.get('filtro_nome')
+      if filtro_nome:
+        produtos = produtos.filter(product_name__icontains=filtro_nome)
+
+      formas_pagamento = {"Selecione opção de pagamento":0,"Cartão de Crédito":2,"Pix":3,"Boleto":4}
+
+
+        
+      context = {'produtos': produtos,
+                  'filtros':filtros,
+                  'formas_pagamento':formas_pagamento,
+                  'cartItems':cartItems,
+                  'cart':cart,}
+
+      return render(request, "main/home.html", context)
+
+    else:
+
+      #PRODUTOS
+      produtos=Product.objects.all()
+
+      #FILTROS
+
+      filtros={"Selecione um filtro":0,"Menor Preço":1,"Maior Score":2,"Ordem alfabética":3}
+      filtro_selecionado= request.GET.get('filtro_selecionado')
+      if filtro_selecionado=="1":
+        produtos=produtos.order_by('product_price')
+      elif filtro_selecionado=="2":
+        produtos=produtos.order_by('-product_score')
+      elif filtro_selecionado=="3":
+        produtos=produtos.order_by('product_name')
+
+
+      filtro_nome= request.GET.get('filtro_nome')
+      if filtro_nome:
+        produtos = produtos.filter(product_name__icontains=filtro_nome)
+
+      formas_pagamento = {"Selecione opção de pagamento":0,"Cartão de Crédito":2,"Pix":3,"Boleto":4}
+
+
+      context = {'produtos': produtos,
+                  'filtros':filtros,
+                  'formas_pagamento':formas_pagamento,}
+
+      return render(request, "main/home.html", context)
+
+
+
+
+@login_required(login_url="/auth/login/")
 def checkout(request):
   if request.method == "GET":
 
@@ -179,25 +218,27 @@ def profile(request):
     return render(request, "main/profile.html", context)
 
 def create_cartitem(request, pk):
+  if not request.user.is_authenticated:
+    return redirect('/login')
     # Recupera o produto selecionado pelo usuário
-    product = Product.objects.get(product_id=pk)
+  product = Product.objects.get(product_id=pk)
 
     # Recupera o carrinho do usuário autenticado atual
-    user = request.user
-    cart = Cart.objects.get(user=user)
+  user = request.user
+  cart = Cart.objects.get(user=user)
 
     # Verifica se há um item no carrinho com o mesmo produto e usuário
-    item = CartItems.objects.filter(product=product, user=user).first()
-    if item:
+  item = CartItems.objects.filter(product=product, user=user).first()
+  if item:
         # Atualiza a quantidade do item existente
-        item.quantity += 1
-        item.save()
-    else:
+      item.quantity += 1
+      item.save()
+  else:
         # Cria um novo item no carrinho
-        cart_item = CartItems(cart=cart, user=user, product=product, quantity=1)
-        cart_item.save()
+      cart_item = CartItems(cart=cart, user=user, product=product, quantity=1)
+      cart_item.save()
 
-    return redirect('/home')
+  return redirect('/home')
 
 
 

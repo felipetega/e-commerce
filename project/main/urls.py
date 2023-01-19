@@ -14,4 +14,6 @@ urlpatterns = [
     path('add/<str:id>', addition, name="addition"),
     path('subtract/<str:id>', subtract, name="subtract"),
     path('remove/<str:id>', remove, name="remove"),
+
+    path('authorization/', views.authorization, name="authorization"),
 ]
